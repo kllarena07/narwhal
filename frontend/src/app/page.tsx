@@ -1,5 +1,17 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    SelectGroup
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+
 export default function Home() {
     async function onSubmit(formData: FormData) {
         try {
@@ -21,14 +33,20 @@ export default function Home() {
         <main>
             <h1>Welcome to Narwhal</h1>
             <form className="flex flex-col" action={onSubmit}>
-                <label>
-                    Link to repository:
-                    <input className="text-black" type="text" name="repo" />
-                </label>
-                <select className="text-black" name="app_type">
-                    <option value="node">Node</option>
-                </select>
-                <button type="submit">Create application</button>
+                <Label>
+                    <Input type="text" placeholder="Link to repository" name="repo" />
+                </Label>
+                <Select name="runtime">
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select a runtime" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectItem value="node">Node</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                <Button type="submit">Create application</Button>
             </form>
         </main>
     );
