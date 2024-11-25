@@ -8,7 +8,8 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-    SelectGroup
+    SelectGroup,
+    SelectLabel
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
@@ -30,23 +31,24 @@ export default function Home() {
     }
 
     return (
-        <main>
-            <h1>Welcome to Narwhal</h1>
-            <form className="flex flex-col" action={onSubmit}>
-                <Label>
-                    <Input type="text" placeholder="Link to repository" name="repo" />
+        <main className="flex justify-center items-center w-dvh h-dvh">
+            <form className="flex flex-col gap-3 w-[400px]" action={onSubmit}>
+                <h1 className="text-xl font-bold">Deploy to Narwhal</h1>
+                <Label className="w-full">
+                    <Input type="text" placeholder="Link to repository" name="repo" required />
                 </Label>
-                <Select name="runtime">
-                    <SelectTrigger className="w-[180px]">
+                <Select name="runtime" required>
+                    <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a runtime" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
+                            <SelectLabel>Select a runtime</SelectLabel>
                             <SelectItem value="node">Node</SelectItem>
                         </SelectGroup>
                     </SelectContent>
                 </Select>
-                <Button type="submit">Create application</Button>
+                <Button className="w-full" type="submit">Create application</Button>
             </form>
         </main>
     );
