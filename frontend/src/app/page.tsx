@@ -34,9 +34,7 @@ export default function Home() {
         <main className="flex justify-center items-center w-dvh h-dvh">
             <form className="flex flex-col gap-3 w-[400px]" action={onSubmit}>
                 <h1 className="text-xl font-bold">Deploy to Narwhal</h1>
-                <Label className="w-full">
-                    <Input type="text" placeholder="Link to repository" name="repo" required />
-                </Label>
+                <Input type="text" placeholder="Link to repository" name="repo" required />
                 <Select name="runtime" required>
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a runtime" />
