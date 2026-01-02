@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-	// Example usage
 	orch, err := orchestrator.NewOrchestrator()
 	if err != nil {
 		log.Fatal(err)
