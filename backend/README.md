@@ -22,9 +22,12 @@ id, _ := orch.RunContainer("nginx:latest", "my-app", []string{"PORT=3000"})
 // Stop and remove
 orch.DownContainer(id)
 ```
-froRun tests: `go test ./tests/`
+
+Run tests: `go test ./tests/`
 
 Run program: `go run .`
+
+Format code: `gofmt -s -w .`
 
 ## API
 
