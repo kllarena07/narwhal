@@ -53,7 +53,6 @@ func (o *Orchestrator) ListContainers(all bool) ([]types.Container, error) {
 }
 
 // RunContainer runs a container with the specified configuration.
-// If a container with the same name exists, it will be removed first.
 func (o *Orchestrator) RunContainer(imageName string, name string, env []string) (string, error) {
 	containers, err := o.client.ContainerList(o.ctx, container.ListOptions{
 		All: true,
@@ -100,7 +99,6 @@ func (o *Orchestrator) RunContainer(imageName string, name string, env []string)
 }
 
 // StopContainer stops a running container.
-// Returns an error if the container doesn't exist or is already stopped.
 func (o *Orchestrator) StopContainer(containerID string) error {
 	timeout := 10
 	err := o.client.ContainerStop(o.ctx, containerID, container.StopOptions{
@@ -126,7 +124,6 @@ func (o *Orchestrator) DownContainer(containerID string) error {
 }
 
 // RemoveContainer removes a container.
-// The container must be stopped before it can be removed.
 func (o *Orchestrator) RemoveContainer(containerID string) error {
 	err := o.client.ContainerRemove(o.ctx, containerID, container.RemoveOptions{
 		Force: false,
