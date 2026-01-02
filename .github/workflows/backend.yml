@@ -14,7 +14,7 @@ on:
 
 jobs:
   test:
-    name: Test Go Orchestrator
+    name: Backend Tests
     runs-on: ubuntu-latest
     
     services:
