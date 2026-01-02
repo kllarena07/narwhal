@@ -1,4 +1,4 @@
-module narwhal/orchestrator
+module narwhal/backend
 
 go 1.21
 

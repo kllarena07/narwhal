@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"narwhal/orchestrator"
+	"narwhal/backend/orchestrator"
 )
 
 func TestNewOrchestrator(t *testing.T) {

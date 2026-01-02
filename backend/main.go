@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"narwhal/orchestrator"
+	"narwhal/backend/orchestrator"
 )
 
 func main() {
