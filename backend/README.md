@@ -25,6 +25,8 @@ orch.DownContainer(id)
 
 Run tests: `go test ./tests/`
 
+Run program: `go run .`
+
 ## API
 
 **Core:** `NewOrchestrator()`, `Close()`, `GetClient()`
