@@ -7,7 +7,6 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 )
 
@@ -43,7 +42,7 @@ func (o *Orchestrator) GetClient() *client.Client {
 
 // ListContainers returns a list of all containers
 func (o *Orchestrator) ListContainers(all bool) ([]types.Container, error) {
-	containers, err := o.client.ContainerList(o.ctx, container.ListOptions{
+	containers, err := o.client.ContainerList(o.ctx, types.ContainerListOptions{
 		All: all,
 	})
 	if err != nil {
@@ -54,7 +53,7 @@ func (o *Orchestrator) ListContainers(all bool) ([]types.Container, error) {
 
 // RunContainer runs a container with the specified configuration.
 func (o *Orchestrator) RunContainer(imageName string, name string, env []string) (string, error) {
-	containers, err := o.client.ContainerList(o.ctx, container.ListOptions{
+	containers, err := o.client.ContainerList(o.ctx, types.ContainerListOptions{
 		All: true,
 	})
 	if err == nil {
@@ -63,14 +62,14 @@ func (o *Orchestrator) RunContainer(imageName string, name string, env []string)
 				if n == "/"+name || n == name {
 					timeout := 5
 					o.client.ContainerStop(o.ctx, c.ID, container.StopOptions{Timeout: &timeout})
-					o.client.ContainerRemove(o.ctx, c.ID, container.RemoveOptions{Force: true})
+					o.client.ContainerRemove(o.ctx, c.ID, types.ContainerRemoveOptions{Force: true})
 					break
 				}
 			}
 		}
 	}
 
-	out, err := o.client.ImagePull(o.ctx, imageName, image.PullOptions{})
+	out, err := o.client.ImagePull(o.ctx, imageName, types.ImagePullOptions{})
 	if err == nil {
 		io.Copy(io.Discard, out)
 		out.Close()
@@ -91,7 +90,7 @@ func (o *Orchestrator) RunContainer(imageName string, name string, env []string)
 		return "", fmt.Errorf("failed to create container: %w", err)
 	}
 
-	if err := o.client.ContainerStart(o.ctx, resp.ID, container.StartOptions{}); err != nil {
+	if err := o.client.ContainerStart(o.ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		return "", fmt.Errorf("failed to start container: %w", err)
 	}
 
@@ -125,7 +124,7 @@ func (o *Orchestrator) DownContainer(containerID string) error {
 
 // RemoveContainer removes a container.
 func (o *Orchestrator) RemoveContainer(containerID string) error {
-	err := o.client.ContainerRemove(o.ctx, containerID, container.RemoveOptions{
+	err := o.client.ContainerRemove(o.ctx, containerID, types.ContainerRemoveOptions{
 		Force: false,
 	})
 	if err != nil {
@@ -136,7 +135,7 @@ func (o *Orchestrator) RemoveContainer(containerID string) error {
 
 // ForceRemoveContainer removes a container, stopping it first if it's running.
 func (o *Orchestrator) ForceRemoveContainer(containerID string) error {
-	err := o.client.ContainerRemove(o.ctx, containerID, container.RemoveOptions{
+	err := o.client.ContainerRemove(o.ctx, containerID, types.ContainerRemoveOptions{
 		Force: true,
 	})
 	if err != nil {
