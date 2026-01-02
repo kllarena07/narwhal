@@ -24,7 +24,7 @@ type MicroVMOrchestrator struct {
 
 func NewMicroVMOrchestrator(flintlockAddr string) (*MicroVMOrchestrator, error) {
 	ctx := context.Background()
-	
+
 	conn, err := grpc.Dial(flintlockAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to Flintlock: %w", err)
@@ -50,9 +50,9 @@ func (m *MicroVMOrchestrator) CreateMicroVM(name, namespace, kernelPath, rootfsP
 
 	req := &v1alpha1.CreateMicroVMRequest{
 		Microvm: &types.MicroVMSpec{
-			Id:        name,
-			Namespace: namespace,
-			Vcpu:      vcpus,
+			Id:         name,
+			Namespace:  namespace,
+			Vcpu:       vcpus,
 			MemoryInMb: memoryMB,
 			Kernel: &types.Kernel{
 				Image: kernelPath,
