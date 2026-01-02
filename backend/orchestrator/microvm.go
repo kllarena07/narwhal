@@ -10,6 +10,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+const (
+	DefaultKernelImage = "ghcr.io/liquidmetal-dev/flintlock-kernel:5.10.77"
+	DefaultOSImage     = "ghcr.io/liquidmetal-dev/capmvm-kubernetes:1.23.5"
+)
+
 type MicroVMOrchestrator struct {
 	conn   *grpc.ClientConn
 	client v1alpha1.MicroVMClient
@@ -36,6 +41,13 @@ func NewMicroVMOrchestrator(flintlockAddr string) (*MicroVMOrchestrator, error) 
 }
 
 func (m *MicroVMOrchestrator) CreateMicroVM(name, namespace, kernelPath, rootfsPath string, vcpus, memoryMB int32) (string, error) {
+	if kernelPath == "" {
+		kernelPath = DefaultKernelImage
+	}
+	if rootfsPath == "" {
+		rootfsPath = DefaultOSImage
+	}
+
 	req := &v1alpha1.CreateMicroVMRequest{
 		Microvm: &types.MicroVMSpec{
 			Id:        name,
