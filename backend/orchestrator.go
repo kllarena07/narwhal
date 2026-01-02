@@ -53,16 +53,35 @@ func (o *Orchestrator) ListContainers(all bool) ([]types.Container, error) {
 	return containers, nil
 }
 
-// RunContainer runs a container with the specified configuration
+// RunContainer runs a container with the specified configuration.
+// If a container with the same name exists, it will be removed first.
 func (o *Orchestrator) RunContainer(imageName string, name string, env []string) (string, error) {
+	// Remove existing container with the same name if it exists
+	containers, err := o.client.ContainerList(o.ctx, container.ListOptions{
+		All: true,
+	})
+	if err == nil {
+		for _, c := range containers {
+			for _, n := range c.Names {
+				if n == "/"+name || n == name {
+					// Stop and remove existing container
+					timeout := 5
+					o.client.ContainerStop(o.ctx, c.ID, container.StopOptions{Timeout: &timeout})
+					o.client.ContainerRemove(o.ctx, c.ID, container.RemoveOptions{Force: true})
+					break
+				}
+			}
+		}
+	}
+
 	// Pull the image if it doesn't exist locally
+	// We try to pull, but continue even if it fails (image might exist locally)
 	out, err := o.client.ImagePull(o.ctx, imageName, image.PullOptions{})
 	if err == nil {
 		// Consume the pull output
 		io.Copy(io.Discard, out)
 		out.Close()
 	}
-	// Note: We continue even if image pull fails, as the image might already exist locally
 
 	// Create container
 	resp, err := o.client.ContainerCreate(
@@ -88,17 +107,56 @@ func (o *Orchestrator) RunContainer(imageName string, name string, env []string)
 	return resp.ID, nil
 }
 
-// StopContainer stops a running container
+// StopContainer stops a running container.
+// Returns an error if the container doesn't exist or is already stopped.
 func (o *Orchestrator) StopContainer(containerID string) error {
 	timeout := 10 // seconds
-	return o.client.ContainerStop(o.ctx, containerID, container.StopOptions{
+	err := o.client.ContainerStop(o.ctx, containerID, container.StopOptions{
 		Timeout: &timeout,
 	})
+	if err != nil {
+		return fmt.Errorf("failed to stop container %s: %w", containerID, err)
+	}
+	return nil
 }
 
-// RemoveContainer removes a container
+// DownContainer stops and removes a container (convenience method).
+func (o *Orchestrator) DownContainer(containerID string) error {
+	// Stop the container first
+	if err := o.StopContainer(containerID); err != nil {
+		// If stopping fails, try to remove anyway (might already be stopped)
+		_ = err
+	}
+
+	// Remove the container
+	if err := o.RemoveContainer(containerID); err != nil {
+		return fmt.Errorf("failed to remove container %s: %w", containerID, err)
+	}
+
+	return nil
+}
+
+// RemoveContainer removes a container.
+// The container must be stopped before it can be removed.
 func (o *Orchestrator) RemoveContainer(containerID string) error {
-	return o.client.ContainerRemove(o.ctx, containerID, container.RemoveOptions{})
+	err := o.client.ContainerRemove(o.ctx, containerID, container.RemoveOptions{
+		Force: false, // Don't force remove running containers
+	})
+	if err != nil {
+		return fmt.Errorf("failed to remove container %s: %w", containerID, err)
+	}
+	return nil
+}
+
+// ForceRemoveContainer removes a container, stopping it first if it's running.
+func (o *Orchestrator) ForceRemoveContainer(containerID string) error {
+	err := o.client.ContainerRemove(o.ctx, containerID, container.RemoveOptions{
+		Force: true,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to force remove container %s: %w", containerID, err)
+	}
+	return nil
 }
 
 // GetContainerInfo returns information about a specific container
