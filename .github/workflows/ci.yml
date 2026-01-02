@@ -14,11 +14,9 @@ jobs:
     services:
       docker:
         image: docker:24-dind
-        options: >-
-          --privileged
-          --network=host
-        ports:
-          - 2375:2375
+        options: --privileged
+        env:
+          DOCKER_TLS_CERTDIR: ""
 
     steps:
       - name: Checkout code
@@ -45,6 +43,8 @@ jobs:
 
       - name: Run tests
         working-directory: ./backend
+        env:
+          DOCKER_HOST: tcp://localhost:2375
         run: go test -v ./tests/...
 
       - name: Build
