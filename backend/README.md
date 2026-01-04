@@ -1,6 +1,6 @@
 # Narwhal Orchestrator
 
-Docker orchestrator for managing containers in the Narwhal PaaS.
+MicroVM orchestrator for managing virtual machines in the Narwhal PaaS using Flintlock.
 
 ## Setup
 
@@ -11,19 +11,17 @@ go mod tidy
 ## Usage
 
 ```go
-import "narwhal/orchestrator"
+import "narwhal/backend/orchestrator"
 
-orch, _ := orchestrator.NewOrchestrator()
+orch, _ := orchestrator.NewMicroVMOrchestrator("localhost:9090")
 defer orch.Close()
 
-// Start a container
-id, _ := orch.RunContainer("nginx:latest", "my-app", []string{"PORT=3000"})
+// Create a microVM
+uid, _ := orch.CreateMicroVM("my-vm", "default", "", "", 2, 2048)
 
-// Stop and remove
-orch.DownContainer(id)
+// Delete microVM
+orch.DeleteMicroVM(uid)
 ```
-
-Run tests: `go test ./tests/`
 
 Run program: `go run .`
 
@@ -31,11 +29,11 @@ Format code: `gofmt -s -w .`
 
 ## API
 
-**Core:** `NewOrchestrator()`, `Close()`, `GetClient()`
+**Core:** `NewMicroVMOrchestrator(addr)`, `Close()`, `GetConnection()`
 
-**Containers:** `RunContainer(image, name, env)`, `StopContainer(id)`, `RemoveContainer(id)`, `DownContainer(id)`, `ForceRemoveContainer(id)`, `ListContainers(all)`, `GetContainerInfo(id)`
+**MicroVMs:** `CreateMicroVM(name, namespace, kernel, rootfs, vcpus, memory)`, `GetMicroVM(uid)`, `ListMicroVMs(namespace)`, `DeleteMicroVM(uid)`
 
 ## Requirements
 
-- Docker daemon running
+- Flintlock service running
 - Go 1.21+
