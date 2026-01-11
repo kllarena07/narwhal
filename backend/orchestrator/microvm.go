@@ -19,14 +19,16 @@ type MicroVMOrchestrator struct {
 	conn   *grpc.ClientConn
 	client v1alpha1.MicroVMClient
 	ctx    context.Context
+	cancel context.CancelFunc
 	addr   string
 }
 
 func NewMicroVMOrchestrator(flintlockAddr string) (*MicroVMOrchestrator, error) {
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
 
 	conn, err := grpc.Dial(flintlockAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
+		cancel()
 		return nil, fmt.Errorf("failed to connect to Flintlock: %w", err)
 	}
 
@@ -36,6 +38,7 @@ func NewMicroVMOrchestrator(flintlockAddr string) (*MicroVMOrchestrator, error) 
 		conn:   conn,
 		client: client,
 		ctx:    ctx,
+		cancel: cancel,
 		addr:   flintlockAddr,
 	}, nil
 }
@@ -127,6 +130,9 @@ func (m *MicroVMOrchestrator) DeleteMicroVM(uid string) error {
 }
 
 func (m *MicroVMOrchestrator) Close() error {
+	if m.cancel != nil {
+		m.cancel()
+	}
 	if m.conn != nil {
 		return m.conn.Close()
 	}
